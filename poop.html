@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💩 똥 백과사전</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --brown-1: #8B5A2B;
+    --brown-2: #A97142;
+    --brown-3: #C68B4E;
+    --cream: #FFF8EE;
+    --good: #2E9E5B;
+    --warn: #E8A13B;
+    --bad: #D64545;
+    --card-shadow: 0 6px 20px rgba(90, 60, 30, 0.15);
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    background: linear-gradient(180deg, #F3E2C4, var(--cream) 30%, var(--cream) 70%, #F3E2C4);
+    color: #4A3520;
+    line-height: 1.6;
+  }
+
+  /* ===== 배경 똥 범벅 레이어 ===== */
+  #poopBg {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  #poopBg span {
+    position: absolute;
+    display: block;
+    user-select: none;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+    animation: bgFloat 16s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes bgFloat {
+    0%, 100% { transform: translateY(0) rotate(var(--rot)); }
+    50%      { transform: translateY(-30px) rotate(calc(var(--rot) + 20deg)); }
+  }
+
+  @keyframes bgSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* 화면 위에서 아래로 똥비가 내리는 애니메이션 */
+  @keyframes bgFall {
+    0%   { transform: translateY(-8vh) translateX(0) rotate(0deg); }
+    25%  { transform: translateY(22vh) translateX(4vw) rotate(90deg); }
+    50%  { transform: translateY(52vh) translateX(-3vw) rotate(180deg); }
+    75%  { transform: translateY(82vh) translateX(3vw) rotate(270deg); }
+    100% { transform: translateY(115vh) translateX(0) rotate(360deg); }
+  }
+
+  /* 화면을 가로질러 흘러가는 애니메이션 */
+  @keyframes bgDrift {
+    0%   { transform: translateX(-12vw) translateY(0) rotate(0deg); }
+    50%  { transform: translateX(55vw) translateY(-7vh) rotate(180deg); }
+    100% { transform: translateX(115vw) translateY(3vh) rotate(360deg); }
+  }
+
+  /* 화면 안에서 자유롭게 헤엄치는 애니메이션 */
+  @keyframes bgSwim {
+    0%   { transform: translate(0, 0) rotate(var(--rot)); }
+    25%  { transform: translate(6vw, -5vh) rotate(calc(var(--rot) + 120deg)); }
+    50%  { transform: translate(-4vw, 4vh) rotate(calc(var(--rot) + 240deg)); }
+    75%  { transform: translate(3vw, 6vh) rotate(calc(var(--rot) + 300deg)); }
+    100% { transform: translate(0, 0) rotate(var(--rot)); }
+  }
+
+  header {
+    background: linear-gradient(135deg, #6B4423, #A97142, #D2A24C);
+    color: #FFF8EE;
+    text-align: center;
+    padding: 60px 20px 70px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header .float-poop {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.35;
+    animation: floatUp 12s linear infinite;
+  }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(60px) rotate(0deg); }
+    100% { transform: translateY(-140px) rotate(20deg); }
+  }
+
+  header h1 {
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    letter-spacing: 2px;
+    text-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+
+  header p.tagline {
+    margin-top: 14px;
+    font-size: 1.1rem;
+    opacity: 0.92;
+  }
+
+  .poop-ascii {
+    font-size: 4.5rem;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.25));
+    margin-bottom: 10px;
+    display: inline-block;
+    animation: wobble 3s ease-in-out infinite;
+  }
+
+  @keyframes wobble {
+    0%, 100% { transform: rotate(-4deg); }
+    50%      { transform: rotate(4deg) scale(1.05); }
+  }
+
+  main { max-width: 1080px; margin: 0 auto; padding: 20px; }
+
+  section { margin-top: 60px; }
+
+  h2.section-title {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 8px;
+    color: var(--brown-1);
+  }
+
+  p.section-desc {
+    text-align: center;
+    color: #8a6d4f;
+    margin-bottom: 30px;
+    font-size: 0.98rem;
+  }
+
+  /* ===== 필터 버튼 ===== */
+  .filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+  }
+
+  .filter-btn {
+    border: 2px solid var(--brown-2);
+    background: #fff;
+    color: var(--brown-1);
+    padding: 8px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover { transform: translateY(-2px); }
+  .filter-btn.active { background: var(--brown-2); color: #fff; }
+
+  /* ===== 카드 그리드 ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: var(--card-shadow);
+    border-top: 6px solid #ccc;
+    transition: transform 0.25s, box-shadow 0.25s;
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(90, 60, 30, 0.25);
+  }
+
+  .card.hidden { display: none; }
+
+  .card .type-num {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: rgba(139, 90, 43, 0.15);
+  }
+
+  .card .emoji { font-size: 3rem; margin-bottom: 10px; }
+
+  .card h3 { font-size: 1.25rem; color: var(--brown-1); margin-bottom: 6px; }
+
+  .card .nickname { color: #9b7a58; font-size: 0.88rem; margin-bottom: 14px; font-style: italic; }
+
+  .card p.desc { font-size: 0.93rem; margin-bottom: 14px; }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .badge.good { background: var(--good); }
+  .badge.warn { background: var(--warn); }
+  .badge.bad  { background: var(--bad); }
+
+  .card.border-good { border-top-color: var(--good); }
+  .card.border-warn { border-top-color: var(--warn); }
+  .card.border-bad  { border-top-color: var(--bad); }
+
+  .tip {
+    background: #FDF3E3;
+    border-left: 4px solid var(--warn);
+    padding: 10px 14px;
+    border-radius: 0 10px 10px 0;
+    font-size: 0.86rem;
+    margin-top: 12px;
+  }
+
+  /* ===== 색상 진단 테이블 ===== */
+  .color-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: var(--card-shadow); }
+
+  .color-table th {
+    background: var(--brown-1);
+    color: #FFF8EE;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
+  .color-table td {
+    padding: 13px 16px;
+    border-bottom: 1px solid #F0E4D3;
+    font-size: 0.92rem;
+    vertical-align: middle;
+  }
+
+  .color-table tr:last-child td { border-bottom: none; }
+  .color-table tr:hover td { background: #FDF8EF; }
+
+  .swatch {
+    display: inline-block;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+
+  /* ===== 동물 똥 ===== */
+  .animal-card .emoji { font-size: 3.4rem; }
+
+  .fact {
+    background: #EFF7EE;
+    border-left: 4px solid var(--good);
+    padding: 10px 14px;
+    border-radius: 0 10px 10px 0;
+    font-size: 0.86rem;
+    margin-top: 12px;
+  }
+
+  /* ===== 푸터 ===== */
+  footer {
+    margin-top: 80px;
+    background: #4A3520;
+    color: #d9c6ac;
+    text-align: center;
+    padding: 30px 20px;
+    font-size: 0.85rem;
+  }
+
+  footer .disclaimer {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 40px 16px 50px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="poopBg" aria-hidden="true"></div>
+
+<header>
+  <div class="poop-ascii">💩</div>
+  <h1>똥 백과사전</h1>
+  <p class="tagline">당신의 똥이 전하는 건강 메시지 — 브리스톨 대변 분류표로 알아보는 나의 상태</p>
+  <div class="float-poop" style="left:10%; animation-delay:0s">💩</div>
+  <div class="float-poop" style="left:30%; animation-delay:3s">💩</div>
+  <div class="float-poop" style="left:55%; animation-delay:1.5s">💩</div>
+  <div class="float-poop" style="left:75%; animation-delay:4.5s">💩</div>
+  <div class="float-poop" style="left:90%; animation-delay:2.5s">💩</div>
+</header>
+
+<main>
+
+  <!-- ================= 브리스톨 차트 ================= -->
+  <section id="bristol">
+    <h2 class="section-title">💩 브리스톨 대변 분류표 (Bristol Stool Scale)</h2>
+    <p class="section-desc">1997년 영국 브리스톨 대학 연구진이 개발한, 세계적으로 가장 널리 쓰이는 대변 7가지 분류. 내 똥은 몇 번?</p>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">전체 보기</button>
+      <button class="filter-btn" data-filter="good">😍 좋은 똥</button>
+      <button class="filter-btn" data-filter="warn">🤔 주의 똥</button>
+      <button class="filter-btn" data-filter="bad">😨 나쁜 똥</button>
+    </div>
+
+    <div class="grid" id="poopGrid">
+
+      <div class="card border-bad" data-grade="bad">
+        <div class="type-num">1</div>
+        <div class="emoji">🥜</div>
+        <h3>1형 — 딱딱한 알갱이형</h3>
+        <div class="nickname">"양똥형" — 딱딱한 알갱이가 우두둑 나옴</div>
+        <span class="badge bad">나쁜 똥 😨</span>
+        <p class="desc">변이 대장에 너무 오래 머물며 수분이 완전히 빠진 상태. 변비가 심하다는 신호예요. 배변 시 힘을 과하게 주면 치질이 생길 수 있어요.</p>
+        <div class="tip">💡 물 많이 마시기, 식이섬유(채소·과일·통곡물) 늘리기, 유산균 섭취가 필요해요!</div>
+      </div>
+
+      <div class="card border-warn" data-grade="warn">
+        <div class="type-num">2</div>
+        <div class="emoji">🌭</div>
+        <h3>2형 — 뭉친 소시지형</h3>
+        <div class="nickname">"똥덩어리형" — 여러 덩어리가 뭉쳐서 나옴</div>
+        <span class="badge warn">주의 똥 🤔</span>
+        <p class="desc">덩어리진 소시지 모양. 살짝 변비 기운이 있다는 뜻이에요. 1형보다는 낫지만 아직 개선 여지가 있어요.</p>
+        <div class="tip">💡 아침에 일어나자마자 물 한 잔, 규칙적인 식사와 운동을 생활화해봐요.</div>
+      </div>
+
+      <div class="card border-warn" data-grade="warn">
+        <div class="type-num">3</div>
+        <div class="emoji">🐍</div>
+        <h3>3형 — 굵은 소시지형</h3>
+        <div class="nickname">"표면 울퉁불퉁 소시지형"</div>
+        <span class="badge warn">주의 똥 🤔</span>
+        <p class="desc">모양은 소시지인데 표면에 균열이 있는 상태. 거의 정상에 가깝지만 수분이 조금 부족해요.</p>
+        <div class="tip">💡 물 섭취만 조금 늘리면 4형 완벽한 똥이 될 수 있어요!</div>
+      </div>
+
+      <div class="card border-good" data-grade="good">
+        <div class="type-num">4</div>
+        <div class="emoji">✨🍌</div>
+        <h3>4형 — 매끈한 소시지형</h3>
+        <div class="nickname">"완벽한 똥" — 부드럽고 매끈한 소시지 or 뱀 모양</div>
+        <span class="badge good">좋은 똥 😍</span>
+        <p class="desc">이상적인 똥! 수분과 식이섬유가 완벽하게 균형 잡힌 상태예요. 대장이 건강하게 잘 작동하고 있다는 증거입니다.</p>
+        <div class="tip">🎉 지금 식습관 그대로 유지하세요! 장 건강의 모범생이에요.</div>
+      </div>
+
+      <div class="card border-good" data-grade="good">
+        <div class="type-num">5</div>
+        <div class="emoji">🫘</div>
+        <h3>5형 — 부드러운 알갱이형</h3>
+        <div class="nickname">"살짝 물렁한 똥" — 끝이 뾰족한 부드러운 조각들</div>
+        <span class="badge good">좋은 똥 😍</span>
+        <p class="desc">부드러운 반죽 덩어리가 쉽게 배출되는 상태. 정상 범위지만 4형보다 수분이 조금 많은 편이에요.</p>
+        <div class="tip">💡 거의 완벽해요! 식이섬유를 조금만 더 보충하면 4형이 됩니다.</div>
+      </div>
+
+      <div class="card border-warn" data-grade="warn">
+        <div class="type-num">6</div>
+        <div class="emoji">🥣</div>
+        <h3>6형 — 풀어진 죽 형태</h3>
+        <div class="nickname">"개운하지 않은 똥" — 가장자리가 들쭉날쭉한 퍼짐 조각</div>
+        <span class="badge warn">주의 똥 🤔</span>
+        <p class="desc">죽처럼 흐물흐물한 상태. 가벼운 설사 또는 장 자극(스트레스, 매운 음식, 유당불내증 등)의 신호예요.</p>
+        <div class="tip">💡 카페인·기름진 음식을 줄이고, 지속되면 유당불내증이나 과민성대장증후군을 의심해보세요.</div>
+      </div>
+
+      <div class="card border-bad" data-grade="bad">
+        <div class="type-num">7</div>
+        <div class="emoji">💧</div>
+        <h3>7형 — 물 설사형</h3>
+        <div class="nickname">"물 대포형" — 고형물 없이 액체만 나옴</div>
+        <span class="badge bad">나쁜 똥 😨</span>
+        <p class="desc">완전한 설사 상태. 장염, 세균·바이러스 감염, 식중독 등일 가능성이 있어요. 탈수 위험이 큽니다!</p>
+        <div class="tip">⚠️ 수분·전해질(이온음료) 보충이 최우선! 2일 이상 지속되거나 고열·혈변이 동반되면 병원에 가세요.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 색상 진단 ================= -->
+  <section id="color">
+    <h2 class="section-title">🎨 똥 색깔로 보는 건강 진단</h2>
+    <p class="section-desc">모양만큼 색도 중요해요! 색깔이 알려주는 몸의 신호를 확인하세요.</p>
+
+    <table class="color-table">
+      <tr><th>색깔</th><th>상태 진단</th><th>판정</th></tr>
+      <tr>
+        <td><span class="swatch" style="background:#7B4B2A"></span>갈색 (황토색)</td>
+        <td>정상! 담즙색소가 소화되며 나오는 건강한 색이에요.</td>
+        <td><span class="badge good">정상</span></td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#C6914F"></span>연한 갈색/황색</td>
+        <td>대체로 정상. 지방이 많은 음식을 먹었을 때도 나와요.</td>
+        <td><span class="badge good">정상</span></td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#4E7A2E"></span>초록색</td>
+        <td>시금치 등 녹색 채소를 많이 먹었거나, 대장 통과가 빠를 때. 일시적이면 괜찮아요.</td>
+        <td><span class="badge warn">주의</span></td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#C2452F"></span>붉은색 / 피가 섞임</td>
+        <td>치질·항문 열상일 수도 있지만, 하부 대장 출혈의 신호일 수 있어요.</td>
+        <td><span class="badge bad">병원 필요</span></td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#1F1B18"></span>검은색 (타르 같음)</td>
+        <td>위·십이지장 출혈 가능성! 검은 변이 묽고 냄새가 지독하면 즉시 병원으로.</td>
+        <td><span class="badge bad">즉시 병원</span></td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#D8D3C4"></span>흰색 / 창백한색</td>
+        <td>담즙이 부족하다는 신호. 담낭·간·담도 문제일 수 있어요.</td>
+        <td><span class="badge bad">병원 필요</span></td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#E8C15A"></span>노란색 (기름지고 냄새 남)</td>
+        <td>지방 소화 장애 신호. 췌장 문제나 흡수불량증 의심.</td>
+        <td><span class="badge bad">병원 필요</span></td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ================= 동물 똥 ================= -->
+  <section id="animals">
+    <h2 class="section-title">🦥 동물들의 특이한 똥 컬렉션</h2>
+    <p class="section-desc">자연계에는 상상을 초월하는 똥들이 가득해요. 놀라운 동물 똥의 세계!</p>
+
+    <div class="grid">
+
+      <div class="card animal-card border-good">
+        <div class="emoji">🟫⬛</div>
+        <h3> wombat (주머니곰) — 각진 똥 🇦🇺</h3>
+        <div class="nickname">세계 유일의 "정육면체 똥"</div>
+        <span class="badge good">동물계 최고의 기형(?) ⭐</span>
+        <p class="desc">둥근 몸을 가진 wombat이 어떻게 큐브 모양 똥을 싸는지 오랜 과학계의 수수께끼였어요. 연구 결과 장의 마지막 부분이 불규칙하게 수분을 흡수하면서 큐브가 만들어진다는 게 밝혀졌죠!</p>
+        <div class="fact">🔬 큐브 똥은 굴러가지 않아서 영역 표시용으로 딱! 하루에 최대 100개를 바위 위에 올려둬요. 이 연구로 2019년 이그노벨상(괴짜 노벨상)을 수상했습니다.</div>
+      </div>
+
+      <div class="card animal-card border-warn">
+        <div class="emoji">🐼</div>
+        <h3>판다 — 하루 40번의 대량 똥 폭탄</h3>
+        <div class="nickname">"먹고 싸고 먹고 싸고"</div>
+        <span class="badge warn">대식가의 대가 🎋</span>
+        <p class="desc">판다는 대나무만 먹는데, 대나무는 영양가가 적고 소화가 어려워서 하루 12~38kg을 먹어야 해요. 그 결과 하루에 최대 40번, 무려 10kg 이상의 똥을 싸요!</p>
+        <div class="fact">🌱 판다 똥은 대나무가 20%만 소화되어 거의 그대로 나와서 퇴비로 쓰기 좋아요. 중국에서는 판다 똥으로 휴지를 만들기도 했습니다(!).</div>
+      </div>
+
+      <div class="card animal-card border-good">
+        <div class="emoji">🐋</div>
+        <h3>향유고래 — 황금보다 비싼 똥</h3>
+        <div class="nickname">"용연향(龍涎香) — 바다의 황금"</div>
+        <span class="badge good">1kg에 수천만 원 💰</span>
+        <p class="desc">향유고래가 오징어 뼈를 소화하면서 장에서 만들어지는 덩어리예요. 처음엔 냄새가 지독하지만 바닷물에 수년간 숙성되면 달콤한 향이 나는 최고급 향수 원료가 됩니다.</p>
+        <div class="fact">💎 2016년 영국 해변에서 1.57kg짜리 용연향이 발견되어 약 7만 파운드(한화 약 1억 원)에 팔렸어요. 똥이 아니라 보물!</div>
+      </div>
+
+      <div class="card animal-card border-warn">
+        <div class="emoji">🐰</div>
+        <h3>토끼 — 똥을 다시 먹는 동물</h3>
+        <div class="nickname">"맹그는 자연의 재활용가"</div>
+        <span class="badge warn">재섭취 시스템 🔄</span>
+        <p class="desc">토끼는 영양분을 완전히 흡수하지 못한 부드러운 똥(맹그, cecotrope)을 항문에서 바로 다시 먹어요! 두 번 소화해서 영양분을 최대한 흡수하기 위한 전략이에요.</p>
+        <div class="fact">⏰ 토끼는 하루에 하드한 똥(일반 똥) 200~300개를 싸요. 똥 알갱이 크기로 토끼의 건강 상태를 확인할 수 있어요.</div>
+      </div>
+
+      <div class="card animal-card border-good">
+        <div class="emoji">🦩</div>
+        <h3>홍학 — 분홍색 똥</h3>
+        <div class="nickname">"몸도 똥도 핑크빛"</div>
+        <span class="badge good">색깔이 음식 따라 🦐</span>
+        <p class="desc">플라밍고는 새우와 조류를 먹어서 몸이 분홍색이 되는데, 똥도 그 음식 색 덕분에 분홍~주황빛이 돼요.</p>
+        <div class="fact">🎨 색소는 카로티노이드라는 천연 색소예요. 플라밍고의 분홍 똥이 호수에 쌓이면 물이 옅은 분홍빛으로 물들기도 합니다.</div>
+      </div>
+
+      <div class="card animal-card border-bad">
+        <div class="emoji">🐦</div>
+        <h3>새 — 소변과 대변이 한 번에</h3>
+        <div class="nickname">"흰 부분이 소변입니다"</div>
+        <span class="badge warn">초고속 배출 🚀</span>
+        <p class="desc">새는 방광이 없어서 소변과 대변이 합쳐진 상태로 한 번에 배출해요. 새똥의 하얀 부분이 바로 소변(요산)이랍니다.</p>
+        <div class="fact">⚡ 무거운 것을 싣고 나는 건 치명적이므로, 새는 언제든 즉시 배출할 수 있도록 진화했어요. 그래서 조준 없이 그냥 갈겨요.</div>
+      </div>
+
+      <div class="card animal-card border-good">
+        <div class="emoji">🪶</div>
+        <h3>코끼리 새(에피오르니스) — 최대의 똥 기록</h3>
+        <div class="nickname">"멸종했지만 똥은 남았다"</div>
+        <span class="badge good">역사상 최대 🏆</span>
+        <p class="desc">마다가스카르에 살았던 코끼리 새(높이 3m)의 똥은 지름 30cm가 넘는 덩어리였어요. 화석화된 이 똥 덩어리가 지금도 발견되고 있어요.</p>
+        <div class="fact">🥚 코끼리 새의 알도 무려 1kg 이상! 이 새는 1000년 전쯤 멸종했어요.</div>
+      </div>
+
+      <div class="card animal-card border-warn">
+        <div class="emoji">🦒</div>
+        <h3>기린 — 산책하며 콩콩콩</h3>
+        <div class="nickname">"작은 알갱이 똥의 연속"</div>
+        <span class="badge warn">걸으면서 배출 🚶</span>
+        <p class="desc">기린의 똥은 완두콩만 한 알갱이가 하루에 수십 kg! 사실 기린은 1형 똥(딱딱한 알갱이)의 대표 주자예요.</p>
+        <div class="fact">📊 초식동물 중에서도 소화 효율이 높은 축에 속해요. 알갱이가 굴러가지 않는 이유는 wombat 큐브 똥과 비슷한 원리!</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 좋은 똥의 조건 ================= -->
+  <section id="checklist">
+    <h2 class="section-title">✅ 좋은 똥의 조건 체크리스트</h2>
+    <p class="section-desc">아래 조건에 해당할수록 당신의 장은 건강합니다!</p>
+
+    <div class="grid">
+      <div class="card border-good">
+        <div class="emoji">🚽</div>
+        <h3>배변 조건</h3>
+        <p class="desc">✔️ 아침에 일어나거나 식후에 규칙적으로 마려움<br>✔️ 화장실에서 5분 안에 해결<br>✔️ 힘을 심하게 주지 않아도 술술 나옴<br>✔️ 배변 후 개운함 (잔변감 없음)</p>
+      </div>
+      <div class="card border-good">
+        <div class="emoji">📏</div>
+        <h3>횟수와 양</h3>
+        <p class="desc">✔️ 주 3회 ~ 하루 3회 사이가 정상 범위<br>✔️ 한 번에 바나나 1~2개 분량 정도<br>✔️ 물에 가라앉되 너무 빨리 가라앉지 않음</p>
+      </div>
+      <div class="card border-good">
+        <div class="emoji">👃</div>
+        <h3>모양과 냄새</h3>
+        <p class="desc">✔️ 4~5형 모양 (매끈한 소시지)<br>✔️ 갈색 계열 색깔<br>✔️ 지독한 악취가 나지 않음 (고기·가공식품 많이 먹으면 냄새가 강해져요)</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>💩 똥 백과사전 — 오늘도 건강한 배변 되세요!</p>
+  <p class="disclaimer">※ 이 페이지는 유머와 교육을 목적으로 하며, 의학적 진단을 대체하지 않습니다. 지속적인 이상 증상은 의사와 상담하세요.</p>
+</footer>
+
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('#poopGrid .card');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+
+      cards.forEach(card => {
+        const grade = card.dataset.grade;
+        if (filter === 'all' || filter === grade) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  // ===== 배경을 똥으로 범벅 만들기 =====
+  const poopBg = document.getElementById('poopBg');
+  const POOP_COUNT = 220;
+
+  const moveTypes = ['float', 'fall', 'drift', 'swim', 'spin'];
+
+  for (let i = 0; i < POOP_COUNT; i++) {
+    const s = document.createElement('span');
+    s.textContent = '💩';
+
+    const size = 16 + Math.random() * 74;
+    s.style.left = (Math.random() * 100) + '%';
+    s.style.top = (Math.random() * 100) + '%';
+    s.style.fontSize = size + 'px';
+    s.style.opacity = (0.05 + Math.random() * 0.10).toFixed(3);
+    s.style.setProperty('--rot', Math.floor(Math.random() * 360) + 'deg');
+    s.style.animationDelay = (-Math.random() * 30) + 's';
+
+    // 움직임 종류 랜덤 배정
+    const type = moveTypes[Math.floor(Math.random() * moveTypes.length)];
+
+    switch (type) {
+      case 'float':
+        s.style.animationName = 'bgFloat';
+        s.style.animationDuration = (8 + Math.random() * 10) + 's';
+        break;
+      case 'fall':
+        s.style.animationName = 'bgFall';
+        s.style.animationDuration = (9 + Math.random() * 12) + 's';
+        s.style.animationTimingFunction = 'linear';
+        break;
+      case 'drift':
+        s.style.animationName = 'bgDrift';
+        s.style.animationDuration = (16 + Math.random() * 16) + 's';
+        s.style.animationTimingFunction = 'linear';
+        break;
+      case 'swim':
+        s.style.animationName = 'bgSwim';
+        s.style.animationDuration = (18 + Math.random() * 16) + 's';
+        break;
+      case 'spin':
+        s.style.animationName = 'bgSpin';
+        s.style.animationDuration = (18 + Math.random() * 24) + 's';
+        s.style.animationTimingFunction = 'linear';
+        break;
+    }
+
+    poopBg.appendChild(s);
+  }
+</script>
+
+</body>
+</html>
