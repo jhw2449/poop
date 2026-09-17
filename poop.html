@@ -277,6 +277,66 @@
     margin-top: 12px;
   }
 
+  /* ===== 방명록 ===== */
+  .gb-form {
+    background: #fff;
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: var(--card-shadow);
+    border-top: 6px solid var(--brown-2);
+    max-width: 680px;
+    margin: 0 auto 30px;
+  }
+
+  .gb-form label { font-weight: 700; font-size: 0.9rem; color: var(--brown-1); display: block; margin-bottom: 6px; }
+
+  .gb-form input, .gb-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #E5D5BE;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    margin-bottom: 16px;
+    background: #FFFDF8;
+    resize: vertical;
+  }
+
+  .gb-form input:focus, .gb-form textarea:focus { outline: none; border-color: var(--brown-2); }
+
+  .gb-submit {
+    background: linear-gradient(135deg, #A97142, #C68B4E);
+    color: #fff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .gb-submit:hover { transform: translateY(-2px); }
+  .gb-submit:disabled { opacity: 0.6; cursor: wait; }
+
+  .gb-list { max-width: 680px; margin: 0 auto; display: grid; gap: 14px; }
+
+  .gb-entry {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: var(--card-shadow);
+    border-left: 5px solid var(--brown-3);
+  }
+
+  .gb-entry .gb-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: 10px; }
+  .gb-entry .gb-name { font-weight: 800; color: var(--brown-1); }
+  .gb-entry .gb-time { font-size: 0.78rem; color: #a58a68; white-space: nowrap; }
+  .gb-entry .gb-msg { font-size: 0.93rem; white-space: pre-wrap; word-break: break-word; }
+
+  .gb-empty { text-align: center; color: #9b7a58; padding: 30px; }
+  .gb-status { text-align: center; font-size: 0.85rem; color: #9b7a58; margin-top: 14px; min-height: 1.2em; }
+
   /* ===== 푸터 ===== */
   footer {
     margin-top: 80px;
@@ -554,6 +614,23 @@
     </div>
   </section>
 
+  <!-- ================= 방명록 ================= -->
+  <section id="guestbook">
+    <h2 class="section-title">📝 똥 명록 (방명록)</h2>
+    <p class="section-desc">다녀간 흔적을 남겨주세요 — 여러분의 똥 이야기를 기다립니다</p>
+
+    <form class="gb-form" id="gbForm">
+      <label for="gbName">닉네임</label>
+      <input type="text" id="gbName" maxlength="20" placeholder="예: 똥친구" required>
+      <label for="gbMessage">메시지</label>
+      <textarea id="gbMessage" rows="3" maxlength="300" placeholder="오늘의 똥 상태는 어땠나요? 💩" required></textarea>
+      <button type="submit" class="gb-submit" id="gbSubmit">💩 흔적 남기기</button>
+    </form>
+
+    <div class="gb-list" id="gbList"></div>
+    <p class="gb-status" id="gbStatus"></p>
+  </section>
+
 </main>
 
 <footer>
@@ -631,6 +708,86 @@
 
     poopBg.appendChild(s);
   }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ===== 방명록 (Supabase) =====
+  const SUPABASE_URL = "https://cdkzuadsqonsvtmlefng.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_nkiaw8nuzs27jQE_SAK5Gg_rFXQSxFa";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const gbForm = document.getElementById("gbForm");
+  const gbList = document.getElementById("gbList");
+  const gbStatus = document.getElementById("gbStatus");
+  const gbSubmit = document.getElementById("gbSubmit");
+
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+
+  const timeAgo = (iso) => {
+    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (diff < 60) return "방금 전";
+    if (diff < 3600) return Math.floor(diff / 60) + "분 전";
+    if (diff < 86400) return Math.floor(diff / 3600) + "시간 전";
+    if (diff < 2592000) return Math.floor(diff / 86400) + "일 전";
+    return new Date(iso).toLocaleDateString("ko-KR");
+  };
+
+  const renderEntries = (rows) => {
+    if (!rows.length) {
+      gbList.innerHTML = '<div class="gb-empty">아직 흔적이 없어요 🥲 첫 번째 똥 주인공이 되어보세요!</div>';
+      return;
+    }
+    gbList.innerHTML = rows.map(r =>
+      '<div class="gb-entry">' +
+        '<div class="gb-head"><span class="gb-name">💩 ' + escapeHtml(r.name) + '</span>' +
+        '<span class="gb-time">' + timeAgo(r.created_at) + "</span></div>" +
+        '<div class="gb-msg">' + escapeHtml(r.message) + "</div>" +
+      "</div>"
+    ).join("");
+  };
+
+  const loadEntries = async () => {
+    gbStatus.textContent = "똥흔적 불러오는 중...";
+    const { data, error } = await sb
+      .from("guestbook")
+      .select("name, message, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) {
+      gbStatus.textContent = "불러오기 실패: " + error.message;
+      return;
+    }
+    gbStatus.textContent = "";
+    renderEntries(data || []);
+  };
+
+  gbForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("gbName").value.trim();
+    const message = document.getElementById("gbMessage").value.trim();
+    if (!name || !message) return;
+
+    gbSubmit.disabled = true;
+    gbSubmit.textContent = "남기는 중...";
+
+    const { error } = await sb.from("guestbook").insert({ name, message });
+
+    gbSubmit.disabled = false;
+    gbSubmit.textContent = "💩 흔적 남기기";
+
+    if (error) {
+      gbStatus.textContent = "저장 실패: " + error.message;
+      return;
+    }
+    document.getElementById("gbMessage").value = "";
+    gbStatus.textContent = "";
+    loadEntries();
+  });
+
+  loadEntries();
 </script>
 
 </body>
